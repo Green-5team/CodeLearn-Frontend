@@ -14,7 +14,7 @@ const Error = lazy(() => import('@/pages/Error'));
 const Result = lazy(() => import('@/pages/Result'));
 const Room = lazy(() => import('@/pages/Room'));
 const CoopRoom = lazy(() => import('@/pages/CoopRoom'));
-
+const CoopResult = lazy(() => import('@/pages/CoopResult'));
 const routes: RouteObject[] = [
   {
     path: PATH_ROUTE.root,
@@ -52,6 +52,11 @@ const routes: RouteObject[] = [
       {
         path: PATH_ROUTE.result,
         element: <Result />,
+        errorElement: <Error />,
+      },
+      {
+        path: PATH_ROUTE.coopresult,
+        element: <CoopResult />,
         errorElement: <Error />,
       },
     ],

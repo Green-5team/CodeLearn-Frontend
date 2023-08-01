@@ -8,6 +8,7 @@ export const PATH_ROUTE = Object.freeze({
   game: '/game',
   result: '/result',
   cooproom: '/cooproom',
+  coopresult: '/coopresult',
 });
 
 export const PATH_API = Object.freeze({
