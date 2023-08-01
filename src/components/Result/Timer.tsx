@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-const Timer = ({ reviewStatus, roomName }: { reviewStatus: boolean; roomName: string }) => {
+const Timer = ({ reviewStatus, roomName }: { reviewStatus?: boolean; roomName: string }) => {
   const [seconds, setSeconds] = useState<number>(60);
   const navigate = useNavigate();
   useEffect(() => {
