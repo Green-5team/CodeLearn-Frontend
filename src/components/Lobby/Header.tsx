@@ -1,31 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
-
-import { postLogout } from '@/apis/authApi';
-
-const Header = () => {
+const Header = ({ handleShowLogout }: { handleShowLogout: () => void }) => {
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    if (confirm('정말 떠나실건가요?'))
-      try {
-        postLogout();
-        localStorage.removeItem(USER_TOKEN_KEY);
-        alert('로그아웃 되었습니다.');
-        navigate(PATH_ROUTE.login);
-      } catch (error) {
-        console.error(error);
-      }
-  };
 
   return (
     <>
       <HeaderLogo onClick={() => navigate('/lobby')}>CODE LEARN</HeaderLogo>
       <HeaderLeftBox>
         <button>내 정보 수정</button>
-        <button onClick={handleLogout}>게임 나가기</button>
+        <button onClick={handleShowLogout}>게임 나가기</button>
       </HeaderLeftBox>
     </>
   );

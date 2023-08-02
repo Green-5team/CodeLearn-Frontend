@@ -2,9 +2,13 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
+
 import ErrorPage from './Error';
 
+import { postLogout } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
+import Alert from '@/components/Alert';
 import CreateRoom from '@/components/Lobby/CreateRoom';
 import Header from '@/components/Lobby/Header';
 import RoomList from '@/components/Lobby/RoomList';
@@ -31,6 +35,20 @@ const Lobby = () => {
     mode: 'STUDY',
   });
 
+  const [isLogout, setIsLogout] = useState(false);
+  const alertLogout = '정말 떠나실건가요?';
+  const handleLogout = () => {
+    try {
+      postLogout();
+      localStorage.removeItem(USER_TOKEN_KEY);
+      navigate(PATH_ROUTE.login);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const handleShowLogout = () => {
+    setIsLogout(!isLogout);
+  };
   const handleChange = (e: { target: { name: string; value: string } }) => {
     if (e.target.name === 'password') {
       const publicState = e.target.value === '' ? 'PUBLIC' : 'PRIVATE';
@@ -70,8 +88,15 @@ const Lobby = () => {
           handleShowCreateRoom={handleShowCreateRoom}
         />
       )}
+      {isLogout && (
+        <Alert
+          message={alertLogout}
+          handleCloseAlert={handleShowLogout}
+          handleAlert={handleLogout}
+        />
+      )}
       <HeaderFrame>
-        <Header />
+        <Header handleShowLogout={handleShowLogout} />
       </HeaderFrame>
       <MainFrame>
         <LeftBox></LeftBox>
