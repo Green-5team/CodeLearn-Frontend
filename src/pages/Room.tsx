@@ -10,6 +10,15 @@ import { gameSocket, socket } from '@/apis/socketApi';
 import Badge from '@/components/Room/Badge';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomStatus, userInfo } from '@/types/room';
+import Peer, { MediaConnection } from 'peerjs';
+
+let didcount = 0;
+let useridcheck = "";
+const storedUserIdCheck = localStorage.getItem('useridcheck');
+if (storedUserIdCheck){
+  useridcheck = storedUserIdCheck;
+}
+
 
 const Room = () => {
   useSocketConnect();
@@ -35,7 +44,70 @@ const Room = () => {
     setIsMicrophone(!isMicrophone);
   };
 
+  const [peer, setPeer] = useState<Peer | null>(null);
+  const [peerId, setPeerId] = useState<string>("");
+  const videoGrid = document.getElementById("video-grid");
+  const videoGrid2 = document.getElementById("video-grid2");
+  const myVideo = document.createElement("video");
+  myVideo.muted = true;
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+  const storedUserIdCheck = localStorage.getItem('useridcheck');
+  if (storedUserIdCheck){
+    useridcheck = storedUserIdCheck;
+  }
+
+
   useEffect(() => {
+
+    var newpeer = new Peer({
+      host: '52.69.242.42',
+      port: 3030,
+      //port: 3000,
+      secure: true,
+      path: '/peerjs',
+      //path: '/room',
+    
+      config: {
+        'iceServers': [
+          { url: 'stun:stun01.sipphone.com' },
+          { url: 'stun:stun.ekiga.net' },
+          { url: 'stun:stunserver.org' },
+          { url: 'stun:stun.softjoys.com' },
+          { url: 'stun:stun.voiparound.com' },
+          { url: 'stun:stun.voipbuster.com' },
+          { url: 'stun:stun.voipstunt.com' },
+          { url: 'stun:stun.voxgratia.org' },
+          { url: 'stun:stun.xten.com' },
+          {
+            url: 'turn:192.158.29.39:3478?transport=udp',
+            credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+            username: '28224511:1379330808'
+          },
+          {
+            url: 'turn:192.158.29.39:3478?transport=tcp',
+            credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+            username: '28224511:1379330808'
+          }
+        ]
+      },
+    
+      debug: 3
+    });  
+    setPeer(newpeer);  
+    console.log(newpeer);
+ 
+    newpeer.on("open", (id) => {
+      setPeerId(id);
+      const currentPeerId = id; // Use the generated ID.
+      socket.emit("voice-join-room", { title: roomName, peerid: currentPeerId });
+    });
+
+  }, []);
+
+
+
+  useEffect(() => {
+
     const roomHandler = (response: RoomStatus) => {
       const { title, member_count, max_members, user_info } = response;
       setRoomName(title);
@@ -108,6 +180,76 @@ const Room = () => {
     socket.emit('start', { title: roomName });
   };
 
+  
+  if (didcount<2){
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then((stream) => {
+          addVideoStream(myVideo, stream);
+          setMediaStream(stream);
+      })
+    didcount++;
+  }
+
+  const setUserIdCheck = (value:string) => {
+    localStorage.setItem('useridcheck', value);
+  };
+
+  socket.on("user-connected", (userId) => {
+    connectToNewUser(userId, mediaStream);
+    setUserIdCheck(userId);
+  })
+
+
+  peer?.on("call", (call) => {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then((stream) => {
+      call.answer(stream);
+      const video = document.createElement("video");
+      call.on('stream', (remoteStream) => {
+        addVideoStream2(video, remoteStream);
+      })
+    })
+  });
+
+  const connectToNewUser = (userId:any, stream:any) => {
+    console.log('I call someone' + userId);
+    const call = peer?.call(userId, stream);
+    const video = document.createElement("video");
+    call?.on("stream", (userVideoStream) => {
+      addVideoStream2(video, userVideoStream);
+    });
+  };
+
+  useEffect(() => { 
+    socket.emit("voice-join-room", { title: roomName, peerid: peerId });
+  }, []);
+
+  const addVideoStream = (video:any, stream:any) => {
+    // video.srcObject = stream;
+    // video.addEventListener("loadedmetadata", () => {
+    //   if(videoGrid2?.lastChild){
+    //     videoGrid2.removeChild(videoGrid2.lastChild);
+    //   }
+    //   videoGrid?.append(video);
+    //   video.play();
+    // });
+  };
+
+  
+  const addVideoStream2 = (video:any, stream:any) => {
+    video.srcObject = stream;
+    video.addEventListener("loadedmetadata", () => {
+      const storedUserIdCheck = localStorage.getItem('useridcheck');
+      if (storedUserIdCheck !== useridcheck) {
+        video.play();
+        videoGrid2?.append(video);
+      }
+      if (storedUserIdCheck){
+        useridcheck = storedUserIdCheck;
+      }
+    });
+  };
+
   return (
     <MainContainer>
       <MainFrame>
@@ -168,6 +310,12 @@ const Room = () => {
           )}
         </div>
       </MainFrame>
+      <div id="video-grid" style={{display: 'none'}}>
+        {/* Add any video elements for remote streams here */}
+      </div>
+      <div id="video-grid2" style={{display: 'none'}}>
+        {/* Add any video elements for remote streams here */}
+      </div>
     </MainContainer>
   );
 };
