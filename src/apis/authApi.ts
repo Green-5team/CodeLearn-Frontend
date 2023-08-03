@@ -9,7 +9,7 @@ import { UserAccount, UserEmail } from '@/types/auth';
 
 const axiosConfig = {
   // baseURL: `http://localhost:3000${PATH_API.auth}`,
-  baseURL: `http://52.69.242.42:3000${PATH_API.auth}`,
+  baseURL: `https://52.69.242.42:3000${PATH_API.auth}`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
