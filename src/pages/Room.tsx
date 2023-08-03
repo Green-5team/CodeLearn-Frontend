@@ -10,6 +10,7 @@ import { gameSocket, socket } from '@/apis/socketApi';
 import Badge from '@/components/Room/Badge';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomStatus, userInfo } from '@/types/room';
+import Peer, { MediaConnection } from 'peerjs';
 
 const Room = () => {
   useSocketConnect();
@@ -34,6 +35,55 @@ const Room = () => {
   const handleMicrophone = () => {
     setIsMicrophone(!isMicrophone);
   };
+
+  const [peer, setPeer] = useState<Peer | null>(null);
+  const [peerId, setPeerId] = useState<string>("");
+  const videoGrid = document.getElementById("video-grid");
+  const myVideo = document.createElement("video");
+  myVideo.muted = true;
+
+  useEffect(() => {
+
+    var newpeer = new Peer({
+      host: 'localhost',
+      port: 3030,
+      path: '/peerjs',
+      config: {
+        'iceServers': [
+          { url: 'stun:stun01.sipphone.com' },
+          { url: 'stun:stun.ekiga.net' },
+          { url: 'stun:stunserver.org' },
+          { url: 'stun:stun.softjoys.com' },
+          { url: 'stun:stun.voiparound.com' },
+          { url: 'stun:stun.voipbuster.com' },
+          { url: 'stun:stun.voipstunt.com' },
+          { url: 'stun:stun.voxgratia.org' },
+          { url: 'stun:stun.xten.com' },
+          {
+            url: 'turn:192.158.29.39:3478?transport=udp',
+            credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+            username: '28224511:1379330808'
+          },
+          {
+            url: 'turn:192.158.29.39:3478?transport=tcp',
+            credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+            username: '28224511:1379330808'
+          }
+        ]
+      },
+    
+      debug: 3
+    });  
+    setPeer(newpeer);  
+
+    newpeer.on("open", (id) => {
+      setPeerId(id);
+      const currentPeerId = id; // Use the generated ID.
+      socket.emit("voice-join-room", { title: roomName, peerid: currentPeerId });
+      console.log("currentPeerId : "+ currentPeerId);  
+    });
+
+  }, []);
 
   useEffect(() => {
     const roomHandler = (response: RoomStatus) => {
@@ -108,6 +158,49 @@ const Room = () => {
     socket.emit('start', { title: roomName });
   };
 
+  useEffect(() => {
+    if (!peer) return;
+
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then((stream) => {
+        //addVideoStream(myVideo, stream);
+
+        peer.on("call", (call) => {
+          call.answer(stream);
+          const video = document.createElement("video");
+          call.on('stream', (remoteStream) => {
+            addVideoStream(video, remoteStream);
+          });
+        });
+
+        socket?.on("user-connected", (userId) => {
+          connectToNewUser(userId, stream);
+        });
+      });
+  }, [peer]);
+
+  const connectToNewUser = (userId:any, stream:any) => {
+    console.log('I call someone' + userId);
+    const call = peer?.call(userId, stream);
+    const video = document.createElement("video");
+    call?.on("stream", (userVideoStream) => {
+      addVideoStream(video, userVideoStream);
+    });
+  };
+
+  useEffect(() => { 
+    socket.emit("voice-join-room", { title: roomName, peerid: peerId });
+  }, []);
+
+  const addVideoStream = (video:any, stream:any) => {
+    video.srcObject = stream;
+    video.addEventListener("loadedmetadata", () => {
+      video.play();
+      videoGrid?.append(video);
+    });
+  };
+
+
   return (
     <MainContainer>
       <MainFrame>
@@ -168,6 +261,8 @@ const Room = () => {
           )}
         </div>
       </MainFrame>
+      <div id="video-grid" style={{display: 'none'}} >
+      </div>
     </MainContainer>
   );
 };
