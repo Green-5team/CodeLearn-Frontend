@@ -22,10 +22,7 @@ const CreateRoom = ({ roomInfo, handleShowCreateRoom, handleChange, onCreateRoom
   return (
     <Modal handleHideModal={handleShowCreateRoom}>
       <CreateRoomForm onSubmit={onCreateRoom}>
-        <Title>
-          <Logo />
-          <TitleText>Create Room</TitleText>
-        </Title>
+        <TitleText>Create Room</TitleText>
         <InputContainer>
           <CustomInputSmall
             title='Room Title'
@@ -38,9 +35,9 @@ const CreateRoom = ({ roomInfo, handleShowCreateRoom, handleChange, onCreateRoom
             <InputSet>
               <SecretCheck onClick={onSecretRoom}>
                 {isSecret ? (
-                  <BiCheckboxChecked size='3rem' style={{ fill: '#9190db' }} />
+                  <BiCheckboxChecked size='3rem' style={{ fill: '#76cea3' }} />
                 ) : (
-                  <BiCheckbox size='3rem' style={{ fill: '#9190db' }} />
+                  <BiCheckbox size='3rem' style={{ fill: '#76cea3' }} />
                 )}{' '}
                 Private Room
               </SecretCheck>
@@ -105,14 +102,16 @@ const CreateRoom = ({ roomInfo, handleShowCreateRoom, handleChange, onCreateRoom
             </InputSet>
           </SettingContainer>
         </InputContainer>
-        <CustomButtonTiny title={'Enter'} isDisabled={!roomInfo.title} />
+        <ButtonContainer>
+          <CustomButtonTiny title={'Enter'} isDisabled={!roomInfo.title} />
+        </ButtonContainer>
       </CreateRoomForm>
     </Modal>
   );
 };
 const InputTitle = styled.label`
   font-family: 'IBM Plex Sans KR';
-  color: #9190db;
+  color: ${(props) => props.theme.color.MainKeyColor};
   font-size: 25px;
   font-weight: 700;
   width: 300px;
@@ -130,19 +129,8 @@ const CreateRoomForm = styled.form`
   flex-direction: column;
   align-items: left;
 `;
-const Title = styled.div`
-  width: fit-content;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-`;
-const Logo = styled.div`
-  width: 44px;
-  height: 44px;
-  background: #1f1e4d;
-`;
 const TitleText = styled.p`
-  color: #8883ff;
+  color: ${(props) => props.theme.color.LightGray};
   text-align: center;
   font-size: 32px;
   font-family: 'IBM Plex Sans KR';
@@ -161,16 +149,19 @@ const InputContainer = styled.div`
 const SettingTitle = styled.div`
   margin-top: 22px;
   width: fit-content;
-  color: #8883ff;
+  color: ${(props) => props.theme.color.LightGray};
   font-size: 28px;
   font-weight: 700;
   line-height: 35px;
 `;
 const SettingContainer = styled.div`
-  color: #9190db;
+  color: ${(props) => props.theme.color.MainKeyColor};
   display: flex;
   flex-direction: column;
   align-items: left;
+`;
+const ButtonContainer = styled.div`
+  width: 100%;
 `;
 const SecretCheck = styled.div`
   /* width: 10px; */
@@ -178,7 +169,7 @@ const SecretCheck = styled.div`
   flex-direction: row;
   align-items: center;
   font-family: 'IBM Plex Sans KR';
-  color: #9190db;
+  color: #76cea3;
   font-size: 25px;
   font-weight: 700;
 `;
