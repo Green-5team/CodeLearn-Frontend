@@ -12,14 +12,14 @@ const theme = {
     Divider: '#474754',
     FocusShadow: '#59FFF5CC',
     ErrorShadow: '#FF5C5CCC',
-    NonFocused: '#6BD9A4', //#6BD9A480
+    NonFocused: '#6BD9A4', // #6BD9A480
   },
   font: {
     Title: "'IBM Plex Sans KR', sans-serif",
     Content: "'Noto Sans KR', sans-serif",
   },
   size: {
-    border: '6px solid',
+    border: '6px solid', // 1.4px solid
   },
 };
 
