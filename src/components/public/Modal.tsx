@@ -1,10 +1,13 @@
 import styled from 'styled-components';
 
+import { Loading } from './Loading';
+
 type ModalProps = {
   children: React.ReactNode | string;
   handleHideModal: () => void;
   backDropOpacity?: number;
   isBlurEffect?: boolean;
+  isLoading?: boolean;
 };
 
 const Modal = ({
@@ -12,6 +15,7 @@ const Modal = ({
   handleHideModal,
   backDropOpacity = 0.8,
   isBlurEffect = true,
+  isLoading = false,
 }: ModalProps) => {
   const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
@@ -28,6 +32,7 @@ const Modal = ({
         onClick={() => {}}
       />
       <ModalOverlay>
+        {isLoading && <Loading />}
         <CloseButton onClick={handleHideModal}>
           <svg
             xmlns='http://www.w3.org/2000/svg'
