@@ -203,7 +203,9 @@ const CanvasBoard = (props: CanvasBoardType) => {
       </Whiteboard>
 
       <PalletWrapper>
-        <OnOffButton onClick={handleBoard}>{isChecked ? '그림판 끄기' : '그림판 켜기'}</OnOffButton>
+        <OnOffButton onClick={handleBoard} status={isChecked ? 'true' : 'false'}>
+          {isChecked ? '그림판 끄기' : '그림판 켜기'}
+        </OnOffButton>
         <InvisibleWrapper isChecked={isChecked}>
           <AiFillDelete
             className='palleteBtn removeBtn'
@@ -229,15 +231,17 @@ const CanvasBoard = (props: CanvasBoardType) => {
   );
 };
 
-const OnOffButton = styled.div`
+const OnOffButton = styled.div<{ status: string }>`
+  border: 4px solid #eee;
+  color: ${(props) => (props.status === 'false' ? ' #263747' : '#eee')};
+
   font-size: 40px;
   font-family: ${(props) => props.theme.font.Title};
   font-weight: 800;
   line-height: 50px;
   border-radius: 16px;
-  border: 3px solid #fff;
   padding: 1rem;
-  background: #263747;
+  background: ${(props) => (props.status === 'true' ? ' #263747' : '#eee')};
 `;
 
 const Container = styled.div`
